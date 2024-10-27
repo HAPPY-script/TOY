@@ -1,0 +1,90 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local remoteItem = Instance.new("Tool")
+remoteItem.Name = "Toy"
+remoteItem.RequiresHandle = true
+
+local handle = Instance.new("Part")
+handle.Size = Vector3.new(1, 1, 1)
+handle.Color = Color3.fromRGB(255, 255, 255)
+handle.Name = "Handle"
+handle.Anchored = false
+handle.CanCollide = false
+handle.Parent = remoteItem
+
+remoteItem.Parent = player.Backpack
+
+local colorMenu = Instance.new("ScreenGui", player.PlayerGui)
+local menuFrame = Instance.new("Frame", colorMenu)
+menuFrame.Size = UDim2.new(0, 200, 0, 250)
+menuFrame.Position = UDim2.new(0, 10, 0, 10)
+menuFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+menuFrame.Visible = false
+
+local colors = {
+    Color3.fromRGB(255, 0, 0),
+    Color3.fromRGB(0, 255, 0),
+    Color3.fromRGB(0, 0, 255),
+    Color3.fromRGB(255, 255, 0),
+    Color3.fromRGB(255, 255, 255),
+    Color3.fromRGB(0, 0, 0)
+}
+
+local selectedColor = Color3.fromRGB(255, 255, 255)
+
+local function createColorButton(color, position)
+    local button = Instance.new("TextButton", menuFrame)
+    button.Size = UDim2.new(0.45, 0, 0, 30)
+    button.Position = position
+    button.BackgroundColor3 = color
+    button.Text = ""
+    button.BorderSizePixel = 0
+
+    button.MouseButton1Click:Connect(function()
+        selectedColor = color
+        handle.Color = selectedColor
+    end)
+end
+
+-- Tạo các nút màu
+local buttonPositions = {
+    UDim2.new(0, 10, 0, 10),
+    UDim2.new(0, 10, 0, 50),
+    UDim2.new(0, 10, 0, 90),
+    UDim2.new(0, 10, 0, 130),
+    UDim2.new(0, 10, 0, 170),
+    UDim2.new(0, 10, 0, 210)
+}
+
+for i, color in ipairs(colors) do
+    createColorButton(color, buttonPositions[i])
+end
+
+local function onItemEquipped()
+    print("Item has been equipped")
+    menuFrame.Visible = true
+end
+
+local function onItemUnequipped()
+    print("Item has been unequipped")
+    menuFrame.Visible = false
+end
+
+local function placeBlock(position)
+    local block = Instance.new("Part")
+    block.Size = Vector3.new(5, 5, 5)
+    block.Position = position
+    block.Color = selectedColor
+    block.Anchored = true
+    block.Parent = workspace
+end
+
+local function onMouseClick()
+    if remoteItem.Parent == player.Backpack then return end
+    local mouse = player:GetMouse()
+    placeBlock(mouse.Hit.p + Vector3.new(0, 2.5, 0))
+end
+
+remoteItem.Equipped:Connect(onItemEquipped)
+remoteItem.Unequipped:Connect(onItemUnequipped)
+remoteItem.Activated:Connect(onMouseClick)
