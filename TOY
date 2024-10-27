@@ -31,6 +31,7 @@ local colors = {
 }
 
 local selectedColor = Color3.fromRGB(255, 255, 255)
+local placedBlocks = {}
 
 local function createColorButton(color, position)
     local button = Instance.new("TextButton", menuFrame)
@@ -46,7 +47,6 @@ local function createColorButton(color, position)
     end)
 end
 
--- Tạo các nút màu
 local buttonPositions = {
     UDim2.new(0, 10, 0, 10),
     UDim2.new(0, 10, 0, 50),
@@ -60,15 +60,20 @@ for i, color in ipairs(colors) do
     createColorButton(color, buttonPositions[i])
 end
 
-local function onItemEquipped()
-    print("Item has been equipped")
-    menuFrame.Visible = true
-end
+local deleteButton = Instance.new("TextButton", menuFrame)
+deleteButton.Size = UDim2.new(0.45, 0, 0, 30)
+deleteButton.Position = UDim2.new(0.5, 10, 0, 210)
+deleteButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+deleteButton.Text = "Delete All"
+deleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+deleteButton.TextScaled = true
 
-local function onItemUnequipped()
-    print("Item has been unequipped")
-    menuFrame.Visible = false
-end
+deleteButton.MouseButton1Click:Connect(function()
+    for _, block in ipairs(placedBlocks) do
+        block:Destroy()
+    end
+    placedBlocks = {}
+end)
 
 local function placeBlock(position)
     local block = Instance.new("Part")
@@ -77,14 +82,22 @@ local function placeBlock(position)
     block.Color = selectedColor
     block.Anchored = true
     block.Parent = workspace
+    table.insert(placedBlocks, block)
 end
 
-local function onMouseClick()
-    if remoteItem.Parent == player.Backpack then return end
+remoteItem.Equipped:Connect(function()
+    menuFrame.Visible = true
+end)
+
+remoteItem.Unequipped:Connect(function()
+    menuFrame.Visible = false
+end)
+
+remoteItem.Activated:Connect(function()
     local mouse = player:GetMouse()
-    placeBlock(mouse.Hit.p + Vector3.new(0, 2.5, 0))
-end
-
-remoteItem.Equipped:Connect(onItemEquipped)
-remoteItem.Unequipped:Connect(onItemUnequipped)
-remoteItem.Activated:Connect(onMouseClick)
+    placeBlock(Vector3.new(
+        math.floor(mouse.Hit.p.X / 5 + 0.5) * 5,
+        math.floor(mouse.Hit.p.Y / 5 + 0.5) * 5,
+        math.floor(mouse.Hit.p.Z / 5 + 0.5) * 5
+    ))
+end)
