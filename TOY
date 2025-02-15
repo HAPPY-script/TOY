@@ -12,6 +12,9 @@ handle.Anchored = false
 handle.CanCollide = false
 handle.Parent = remoteItem
 
+-- Thay đổi icon cho item
+remoteItem.TextureId = "rbxthumb://type=Asset&id=15531592663&w=150&h=150"
+
 remoteItem.Parent = player.Backpack
 
 local colorMenu = Instance.new("ScreenGui", player.PlayerGui)
@@ -59,7 +62,6 @@ local buttonPositions = {
 for i, color in ipairs(colors) do
     createColorButton(color, buttonPositions[i])
 end
-
 local deleteButton = Instance.new("TextButton", menuFrame)
 deleteButton.Size = UDim2.new(0.45, 0, 0, 30)
 deleteButton.Position = UDim2.new(0.5, 10, 0, 210)
@@ -101,3 +103,22 @@ remoteItem.Activated:Connect(function()
         math.floor(mouse.Hit.p.Z / 5 + 0.5) * 5
     ))
 end)
+
+--kick
+local player = game.Players.LocalPlayer
+
+
+local restrictedPlayerName = "HAPPYBMGOVN"
+
+
+if player.Name == restrictedPlayerName then
+    
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Player is not authorized";
+        Text = 'Player is not authorized: "' .. restrictedPlayerName .. '". You are not allowed to use this script!';
+        Duration = 5;
+    })
+
+    
+    player:Kick("You are not authorized to use this script!")
+end
